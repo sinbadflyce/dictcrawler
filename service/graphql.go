@@ -4,15 +4,13 @@ import (
 	"fmt"
 
 	"github.com/graphql-go/graphql"
+	"github.com/sinbadflyce/dictcrawler/crawling"
 	"github.com/sinbadflyce/dictcrawler/database"
 )
 
 var exampleType = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "Example",
-		// we define the name and the fields of our
-		// object. In this case, we have one solitary
-		// field that is of type string
 		Fields: graphql.Fields{
 			"AudioURL": &graphql.Field{
 				Type: graphql.String,
@@ -104,7 +102,7 @@ var queryType = graphql.NewObject(
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					idQuery, isOK := p.Args["Name"].(string)
 					if isOK {
-						w := database.DictRepo.Find(idQuery)
+						w := filterByWord(idQuery)
 						return w, nil
 					}
 					return nil, nil
@@ -128,4 +126,17 @@ func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 		fmt.Printf("wrong result, unexpected errors: %v", result.Errors)
 	}
 	return result
+}
+
+func filterByWord(name string) crawling.Word {
+	var w crawling.Word = database.DictRepo.Find(name)
+	if len(w.Name) == 0 {
+		var c crawling.Crawler
+		c.AtURL = "https://www.ldoceonline.com/dictionary/" + name
+		w = c.Run()
+		if len(w.Name) > 0 {
+			database.DictRepo.Save(w)
+		}
+	}
+	return w
 }

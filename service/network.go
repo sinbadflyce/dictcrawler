@@ -18,6 +18,6 @@ func (n *Network) Listen() {
 	})
 
 	fmt.Println("Now server is running on port 8080")
-	fmt.Println("Test with Get      : curl -g 'http://localhost:3000/graphql?query={word(name:\"1\")[entries]}'")
+	fmt.Println("Test with Get      : curl -g 'http://localhost:3000/graphql?query={Word(Name:\"Hello!\"){Name,Entries{Homnum,Topics,Senses{SignPost,Definition}}}}'")
 	http.ListenAndServe(":3000", nil)
 }
