@@ -1,0 +1,35 @@
+type Example {
+	AudioURL: String!
+	Text:     String!
+}
+
+type Sense {
+	SignPost:   String!
+	Definition: String!
+	Gram:       String!
+	Examples:   [Example!]!
+}
+
+type Entry {
+	Topics:      [String!]!
+	Homnum:      String!
+	Freqs:       [String!]!
+	SpeakerURLs: [String!]!
+	Hyphenation: String!
+	Pron:        String!
+	Poses:       [String!]!
+	Senses:      [Sense!]!
+}
+
+type Word {
+	Name:    String!
+	Entries: [Entry!]!
+}
+
+schema {
+    query: CrawlerQuery    
+}
+
+type CrawlerQuery {
+  lookupWord(name: String!): Word! 
+}

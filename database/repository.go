@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/sinbadflyce/dictcrawler/crawling"
+	"github.com/sinbadflyce/dictcrawler/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -50,7 +50,7 @@ func (r *Repository) Close() {
 }
 
 // Save ...
-func (r *Repository) Save(word crawling.Word) {
+func (r *Repository) Save(word models.Word) {
 	existW := r.Find(word.Name)
 
 	if len(existW.Name) > 0 {
@@ -89,8 +89,8 @@ func (r *Repository) Save(word crawling.Word) {
 }
 
 // Find ...
-func (r *Repository) Find(aWord string) crawling.Word {
-	var result crawling.Word
+func (r *Repository) Find(aWord string) models.Word {
+	var result models.Word
 	collection := r.client.Database(databaseName).Collection(collectionName)
 
 	filter := bson.D{primitive.E{Key: "name", Value: aWord}}

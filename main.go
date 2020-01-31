@@ -38,3 +38,7 @@ func runServer() {
 	n.Listen()
 	database.DictRepo.Close()
 }
+
+func mainDebug() {
+	runServer()
+}

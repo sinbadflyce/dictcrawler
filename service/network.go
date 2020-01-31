@@ -1,23 +1,29 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
+	"os"
+
+	"github.com/99designs/gqlgen/handler"
+	"github.com/sinbadflyce/dictcrawler/generates"
+	"github.com/sinbadflyce/dictcrawler/resolvers"
 )
 
 // Network ...
 type Network struct {
 }
 
+const defaultPort = "3000"
+
 // Listen ...
 func (n *Network) Listen() {
-	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
-		result := executeQuery(r.URL.Query().Get("query"), schema)
-		json.NewEncoder(w).Encode(result)
-	})
-
-	fmt.Println("Now server is running on port 8080")
-	fmt.Println("Test with Get      : curl -g 'http://localhost:3000/graphql?query={Word(Name:\"Hello!\"){Name,Entries{Homnum,Topics,Senses{SignPost,Definition}}}}'")
-	http.ListenAndServe(":3000", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
+	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
+	http.Handle("/query", handler.GraphQL(generates.NewExecutableSchema(generates.Config{Resolvers: &resolvers.LMResolver{}})))
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

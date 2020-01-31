@@ -6,6 +6,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
+	"github.com/sinbadflyce/dictcrawler/models"
 )
 
 // Crawler ...
@@ -14,14 +15,14 @@ type Crawler struct {
 }
 
 // Run ...
-func (crawler *Crawler) Run() Word {
+func (crawler *Crawler) Run() models.Word {
 	if len(crawler.AtURL) == 0 {
-		return Word{}
+		return models.Word{}
 	}
 
 	c := colly.NewCollector()
-	word := Word{}
-	entries := make([]Entry, 0, 100)
+	word := models.Word{}
+	entries := make([]*models.Entry, 0, 100)
 
 	// Word Name
 	c.OnHTML("h1[class=pagetitle]", func(e *colly.HTMLElement) {
@@ -30,7 +31,7 @@ func (crawler *Crawler) Run() Word {
 
 	// Dictionary Entry
 	c.OnHTML("span[class=dictentry]", func(e *colly.HTMLElement) {
-		entry := Entry{}
+		entry := models.Entry{}
 
 		e.DOM.Find(".topics_container").Each(func(i int, s *goquery.Selection) {
 			entry.Topics = parseTOPICs(s)
@@ -46,15 +47,15 @@ func (crawler *Crawler) Run() Word {
 		})
 
 		e.DOM.Find(".Sense").Each(func(i int, s *goquery.Selection) {
-			sense := Sense{}
+			sense := models.Sense{}
 			sense.SignPost = parseSIGNPOST(s)
 			sense.Definition = parseDEF(s)
 			sense.Gram = parseGRAM(s)
 			sense.Examples = parseEXAMPLES(s)
-			entry.Senses = append(entry.Senses, sense)
+			entry.Senses = append(entry.Senses, &sense)
 		})
 
-		entries = append(entries, entry)
+		entries = append(entries, &entry)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
@@ -87,15 +88,15 @@ func parseGRAM(senseSelection *goquery.Selection) string {
 	return result
 }
 
-func parseEXAMPLES(senseSelection *goquery.Selection) []Example {
-	var result []Example
+func parseEXAMPLES(senseSelection *goquery.Selection) []*models.Example {
+	var result []*models.Example
 	senseSelection.Find(".EXAMPLE").Each(func(i int, s *goquery.Selection) {
-		example := Example{}
+		example := models.Example{}
 		example.Text = strings.TrimSpace(s.Text())
 		s.Find(".speaker").Each(func(i int, s1 *goquery.Selection) {
 			example.AudioURL, _ = s1.Attr("data-src-mp3")
 		})
-		result = append(result, example)
+		result = append(result, &example)
 	})
 	return result
 }

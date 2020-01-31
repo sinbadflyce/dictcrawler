@@ -1,0 +1,15 @@
+# .gqlgen.yml example
+#
+# Refer to https://gqlgen.com/config/
+# for detailed .gqlgen.yml documentation.
+
+schema:
+- longman.graphql
+exec:
+  filename: generates/lmgenerated.go
+model:
+  filename: models/longman.go
+resolver:
+  filename: resolvers/lmresolver.go
+  type: LMResolver
+autobind: []
